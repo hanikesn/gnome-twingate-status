@@ -99,7 +99,7 @@
     {
       "address": "k8s.staging.example.internal",
       "admin_url": "https://example.twingate.com/resources/UmVzb3VyY2U6MTAwMDAwNQ==",
-      "auth_expires_at": 1759921770,
+      "auth_expires_at": 0,
       "auth_flow_id": "500001",
       "auth_state": "none",
       "can_open_in_browser": true,
@@ -171,9 +171,9 @@
     {
       "address": "vault.example.internal",
       "admin_url": "https://example.twingate.com/resources/UmVzb3VyY2U6MTAwMDAwOQ==",
-      "auth_expires_at": 1759921770,
+      "auth_expires_at": 0,
       "auth_flow_id": "500001",
-      "auth_state": "none",
+      "auth_state": "pending",
       "can_open_in_browser": true,
       "client_visibility": 1,
       "global_id": "UmVzb3VyY2U6MTAwMDAwOQ==",
@@ -207,7 +207,7 @@
     {
       "address": "runner.example.internal",
       "admin_url": "https://example.twingate.com/resources/UmVzb3VyY2U6MTAwMDAxMQ==",
-      "auth_expires_at": 1759921770,
+      "auth_expires_at": 0,
       "auth_flow_id": "500002",
       "auth_state": "none",
       "can_open_in_browser": true,
@@ -225,7 +225,7 @@
     {
       "address": "metabase.example.internal",
       "admin_url": "https://example.twingate.com/resources/UmVzb3VyY2U6MTAwMDAxMg==",
-      "auth_expires_at": 1759921770,
+      "auth_expires_at": 0,
       "auth_flow_id": "500002",
       "auth_state": "none",
       "can_open_in_browser": true,
@@ -243,7 +243,7 @@
     {
       "address": "s3.example.internal",
       "admin_url": "https://example.twingate.com/resources/UmVzb3VyY2U6MTAwMDAxMw==",
-      "auth_expires_at": 1759921770,
+      "auth_expires_at": 0,
       "auth_flow_id": "500002",
       "auth_state": "none",
       "can_open_in_browser": true,
@@ -333,7 +333,7 @@
     {
       "address": "monitoring.example.internal",
       "admin_url": "https://example.twingate.com/resources/UmVzb3VyY2U6MTAwMDAxOA==",
-      "auth_expires_at": 1759921770,
+      "auth_expires_at": 0,
       "auth_flow_id": "500003",
       "auth_state": "none",
       "can_open_in_browser": true,
@@ -351,7 +351,7 @@
     {
       "address": "logs.example.internal",
       "admin_url": "https://example.twingate.com/resources/UmVzb3VyY2U6MTAwMDAxOQ==",
-      "auth_expires_at": 1759921770,
+      "auth_expires_at": 0,
       "auth_flow_id": "500003",
       "auth_state": "none",
       "can_open_in_browser": true,
@@ -387,7 +387,7 @@
     {
       "address": "sandbox-db.example.internal",
       "admin_url": "https://example.twingate.com/resources/UmVzb3VyY2U6MTAwMDAyMQ==",
-      "auth_expires_at": 1759921770,
+      "auth_expires_at": 0,
       "auth_flow_id": "500004",
       "auth_state": "none",
       "can_open_in_browser": true,

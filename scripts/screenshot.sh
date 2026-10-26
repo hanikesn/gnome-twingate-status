@@ -1,6 +1,8 @@
 #!/bin/bash
 # Captures the extension menu in a headless GNOME Shell, plus the preferences
-# window, and writes PNGs to screenshots/. The shell runs under its own dconf profile so the live
+# window, and writes PNGs to screenshots/. With FAKE_DAEMON=1 the shell talks
+# to scripts/fake-daemon.js serving examples/resources.json instead of the
+# real client, and screenshots/ego.png is cropped for extensions.gnome.org. The shell runs under its own dconf profile so the live
 # session's settings are untouched, and in unsafe mode so the menu can be
 # opened over D-Bus Eval.
 set -euo pipefail
@@ -19,10 +21,17 @@ system-db:site
 system-db:distro
 PROFILE
 
+FAKE_SOCKET="$WORK/auth.sock"
+EXT_DIR="$HOME/.local/share/gnome-shell/extensions/$UUID"
+
 cat > "$WORK/inner.sh" <<INNER
 #!/bin/bash
 export MUTTER_DEBUG_DUMMY_MODE_SPECS=1280x720
 unset WAYLAND_DISPLAY DISPLAY
+if [ "\${FAKE_DAEMON:-0}" = 1 ]; then
+    gjs -m "$ROOT/scripts/fake-daemon.js" "$FAKE_SOCKET" "$ROOT/examples/resources.json" &
+    GSETTINGS_SCHEMA_DIR="$EXT_DIR/schemas" gsettings set org.gnome.shell.extensions.twingate-status socket-path "$FAKE_SOCKET"
+fi
 gsettings set org.gnome.shell disable-user-extensions false
 gsettings set org.gnome.shell enabled-extensions "['$UUID']"
 gsettings set org.gnome.shell welcome-dialog-last-shown-version '99'
@@ -38,6 +47,7 @@ for shot in warmup menu submenu search; do
 done
 rm -f "$OUT/warmup.png"
 kill -KILL \$PID
+[ "\${FAKE_DAEMON:-0}" = 1 ] && kill %1
 INNER
 chmod +x "$WORK/inner.sh"
 
@@ -52,5 +62,10 @@ fi
 GI_TYPELIB_PATH=/usr/lib64/gnome-shell/girepository-1.0 LD_LIBRARY_PATH=/usr/lib64/gnome-shell \
     EXT_DIR="$HOME/.local/share/gnome-shell/extensions/$UUID" OUT_PNG="$OUT/prefs.png" \
     timeout 30 gjs -m "$ROOT/scripts/prefs-screenshot.js" 2>&1 | grep -E "saved|FAILED" || true
+
+if [ "${FAKE_DAEMON:-0}" = 1 ] && command -v magick >/dev/null; then
+    # Menu plus a little top bar context, the shape the listing page shows.
+    magick "$OUT/menu.png" -crop 420x560+880+0 +repage "$OUT/ego.png"
+fi
 
 ls -1 "$OUT"/*.png
