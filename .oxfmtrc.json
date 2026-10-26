@@ -1,0 +1,15 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "printWidth": 120,
+  "tabWidth": 4,
+  "singleQuote": true,
+  "ignorePatterns": ["dist", "dist-test", "pnpm-lock.yaml", "examples", "scripts"],
+  "overrides": [
+    {
+      "files": ["*.json", "*.jsonc"],
+      "options": {
+        "tabWidth": 2
+      }
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="org.gnome.shell.extensions.twingate-status" path="/org/gnome/shell/extensions/twingate-status/">
+    <key name="socket-path" type="s">
+      <default>'/run/twingate/auth.sock'</default>
+      <summary>Daemon socket path</summary>
+      <description>Path of the Twingate client's SOCK_SEQPACKET control socket.</description>
+    </key>
+    <key name="service-name" type="s">
+      <default>'twingate.service'</default>
+      <summary>systemd unit</summary>
+      <description>System unit that is started, stopped and watched.</description>
+    </key>
+    <key name="show-hidden-resources" type="b">
+      <default>true</default>
+      <summary>Show hidden resources</summary>
+      <description>List resources the admin marked as hidden in a collapsed submenu.</description>
+    </key>
+    <key name="show-addresses" type="b">
+      <default>true</default>
+      <summary>Show addresses</summary>
+      <description>Show each resource's address under its name.</description>
+    </key>
+    <key name="copy-notifications" type="b">
+      <default>true</default>
+      <summary>Notify when an address is copied</summary>
+      <description>Show a short notification after a resource address is copied to the clipboard.</description>
+    </key>
+    <key name="notifier-hint" type="b">
+      <default>true</default>
+      <summary>Suggest disabling Twingate's own notifier</summary>
+      <description>Show a prompt when twingate-desktop-notifier.service is running alongside this extension, since both show sign-in prompts.</description>
+    </key>
+  </schema>
+</schemalist>

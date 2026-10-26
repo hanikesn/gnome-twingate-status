@@ -1,0 +1,36 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "unicorn", "oxc", "import"],
+  "categories": {
+    "correctness": "error",
+    "suspicious": "warn",
+    "perf": "warn"
+  },
+  "rules": {
+    "no-unused-vars": [
+      "error",
+      {
+        "argsIgnorePattern": "^_",
+        "varsIgnorePattern": "^_"
+      }
+    ],
+    "typescript/no-explicit-any": "error",
+    "typescript/no-floating-promises": "error",
+    "typescript/no-misused-promises": [
+      "error",
+      {
+        "checksVoidReturn": false
+      }
+    ],
+    "typescript/consistent-type-imports": "error",
+    "no-underscore-dangle": "off",
+    "typescript/no-unsafe-type-assertion": "off",
+    "unicorn/no-array-sort": "error",
+    "import/no-unassigned-import": "off",
+    "import/namespace": "off"
+  },
+  "env": {
+    "builtin": true
+  },
+  "ignorePatterns": ["dist", "dist-test", "node_modules", "scripts"]
+}

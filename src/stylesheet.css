@@ -1,0 +1,30 @@
+.twingate-indicator-off {
+    opacity: 0.45;
+}
+
+.twingate-indicator-connecting {
+    opacity: 0.7;
+}
+
+.twingate-status-detail,
+.twingate-resource-address {
+    color: #9a9996;
+    font-size: 0.85em;
+}
+
+.twingate-resource-address {
+    margin-top: 1px;
+}
+
+.twingate-menu {
+    width: 24em;
+}
+
+.twingate-search-entry {
+    width: 16em;
+}
+
+.twingate-trailing-icon {
+    icon-size: 16px;
+    margin-left: 12px;
+}

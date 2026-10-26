@@ -1,0 +1,468 @@
+{
+  "admin_url": "https://example.twingate.com",
+  "full_tunnel_time_limit": 43200,
+  "internet_security": {
+    "mode": 0,
+    "status": 1
+  },
+  "resources": [
+    {
+      "address": "grafana.staging.example.internal",
+      "admin_url": "https://example.twingate.com/resources/UmVzb3VyY2U6MTAwMDAwMA==",
+      "auth_expires_at": 0,
+      "auth_flow_id": "500000",
+      "auth_state": "none",
+      "can_open_in_browser": true,
+      "client_visibility": 2,
+      "global_id": "UmVzb3VyY2U6MTAwMDAwMA==",
+      "id": "1000000",
+      "metadata": {
+        "ca_data": "",
+        "resource_type": 1
+      },
+      "name": "Grafana Staging",
+      "open_url": "",
+      "type": "fqdn"
+    },
+    {
+      "address": "grafana.prod.example.internal",
+      "admin_url": "https://example.twingate.com/resources/UmVzb3VyY2U6MTAwMDAwMQ==",
+      "auth_expires_at": 0,
+      "auth_flow_id": "500000",
+      "auth_state": "none",
+      "can_open_in_browser": true,
+      "client_visibility": 2,
+      "global_id": "UmVzb3VyY2U6MTAwMDAwMQ==",
+      "id": "1000001",
+      "metadata": {
+        "ca_data": "",
+        "resource_type": 1
+      },
+      "name": "Grafana Production",
+      "open_url": "",
+      "type": "fqdn"
+    },
+    {
+      "address": "db.staging.example.internal",
+      "admin_url": "https://example.twingate.com/resources/UmVzb3VyY2U6MTAwMDAwMg==",
+      "auth_expires_at": 0,
+      "auth_flow_id": "500000",
+      "auth_state": "none",
+      "can_open_in_browser": true,
+      "client_visibility": 2,
+      "global_id": "UmVzb3VyY2U6MTAwMDAwMg==",
+      "id": "1000002",
+      "metadata": {
+        "ca_data": "",
+        "resource_type": 1
+      },
+      "name": "Postgres Staging",
+      "open_url": "",
+      "type": "fqdn"
+    },
+    {
+      "address": "db.prod.example.internal",
+      "admin_url": "https://example.twingate.com/resources/UmVzb3VyY2U6MTAwMDAwMw==",
+      "auth_expires_at": 0,
+      "auth_flow_id": "500000",
+      "auth_state": "none",
+      "can_open_in_browser": true,
+      "client_visibility": 2,
+      "global_id": "UmVzb3VyY2U6MTAwMDAwMw==",
+      "id": "1000003",
+      "metadata": {
+        "ca_data": "",
+        "resource_type": 1
+      },
+      "name": "Postgres Production",
+      "open_url": "",
+      "type": "fqdn"
+    },
+    {
+      "address": "redis.example.internal",
+      "admin_url": "https://example.twingate.com/resources/UmVzb3VyY2U6MTAwMDAwNA==",
+      "auth_expires_at": 0,
+      "auth_flow_id": "500000",
+      "auth_state": "none",
+      "can_open_in_browser": true,
+      "client_visibility": 1,
+      "global_id": "UmVzb3VyY2U6MTAwMDAwNA==",
+      "id": "1000004",
+      "metadata": {
+        "ca_data": "",
+        "resource_type": 1
+      },
+      "name": "Redis Cache",
+      "open_url": "https://redis.example.internal/",
+      "type": "fqdn"
+    },
+    {
+      "address": "k8s.staging.example.internal",
+      "admin_url": "https://example.twingate.com/resources/UmVzb3VyY2U6MTAwMDAwNQ==",
+      "auth_expires_at": 1759921770,
+      "auth_flow_id": "500001",
+      "auth_state": "none",
+      "can_open_in_browser": true,
+      "client_visibility": 1,
+      "global_id": "UmVzb3VyY2U6MTAwMDAwNQ==",
+      "id": "1000005",
+      "metadata": {
+        "ca_data": "",
+        "resource_type": 1
+      },
+      "name": "Kubernetes API Staging",
+      "open_url": "",
+      "type": "fqdn"
+    },
+    {
+      "address": "k8s.prod.example.internal",
+      "admin_url": "https://example.twingate.com/resources/UmVzb3VyY2U6MTAwMDAwNg==",
+      "auth_expires_at": 0,
+      "auth_flow_id": "500001",
+      "auth_state": "none",
+      "can_open_in_browser": true,
+      "client_visibility": 2,
+      "global_id": "UmVzb3VyY2U6MTAwMDAwNg==",
+      "id": "1000006",
+      "metadata": {
+        "ca_data": "",
+        "resource_type": 1
+      },
+      "name": "Kubernetes API Production",
+      "open_url": "",
+      "type": "fqdn"
+    },
+    {
+      "address": "jenkins.example.internal",
+      "admin_url": "https://example.twingate.com/resources/UmVzb3VyY2U6MTAwMDAwNw==",
+      "auth_expires_at": 0,
+      "auth_flow_id": "500001",
+      "auth_state": "none",
+      "can_open_in_browser": true,
+      "client_visibility": 2,
+      "global_id": "UmVzb3VyY2U6MTAwMDAwNw==",
+      "id": "1000007",
+      "metadata": {
+        "ca_data": "",
+        "resource_type": 1
+      },
+      "name": "Jenkins",
+      "open_url": "",
+      "type": "fqdn"
+    },
+    {
+      "address": "argocd.example.internal",
+      "admin_url": "https://example.twingate.com/resources/UmVzb3VyY2U6MTAwMDAwOA==",
+      "auth_expires_at": 0,
+      "auth_flow_id": "500001",
+      "auth_state": "none",
+      "can_open_in_browser": true,
+      "client_visibility": 2,
+      "global_id": "UmVzb3VyY2U6MTAwMDAwOA==",
+      "id": "1000008",
+      "metadata": {
+        "ca_data": "",
+        "resource_type": 1
+      },
+      "name": "ArgoCD",
+      "open_url": "",
+      "type": "fqdn"
+    },
+    {
+      "address": "vault.example.internal",
+      "admin_url": "https://example.twingate.com/resources/UmVzb3VyY2U6MTAwMDAwOQ==",
+      "auth_expires_at": 1759921770,
+      "auth_flow_id": "500001",
+      "auth_state": "none",
+      "can_open_in_browser": true,
+      "client_visibility": 1,
+      "global_id": "UmVzb3VyY2U6MTAwMDAwOQ==",
+      "id": "1000009",
+      "metadata": {
+        "ca_data": "",
+        "resource_type": 1
+      },
+      "name": "Vault",
+      "open_url": "",
+      "type": "fqdn"
+    },
+    {
+      "address": "wiki.example.internal",
+      "admin_url": "https://example.twingate.com/resources/UmVzb3VyY2U6MTAwMDAxMA==",
+      "auth_expires_at": 0,
+      "auth_flow_id": "500002",
+      "auth_state": "none",
+      "can_open_in_browser": true,
+      "client_visibility": 2,
+      "global_id": "UmVzb3VyY2U6MTAwMDAxMA==",
+      "id": "1000010",
+      "metadata": {
+        "ca_data": "",
+        "resource_type": 1
+      },
+      "name": "Wiki",
+      "open_url": "",
+      "type": "fqdn"
+    },
+    {
+      "address": "runner.example.internal",
+      "admin_url": "https://example.twingate.com/resources/UmVzb3VyY2U6MTAwMDAxMQ==",
+      "auth_expires_at": 1759921770,
+      "auth_flow_id": "500002",
+      "auth_state": "none",
+      "can_open_in_browser": true,
+      "client_visibility": 1,
+      "global_id": "UmVzb3VyY2U6MTAwMDAxMQ==",
+      "id": "1000011",
+      "metadata": {
+        "ca_data": "",
+        "resource_type": 1
+      },
+      "name": "GitLab Runner",
+      "open_url": "",
+      "type": "fqdn"
+    },
+    {
+      "address": "metabase.example.internal",
+      "admin_url": "https://example.twingate.com/resources/UmVzb3VyY2U6MTAwMDAxMg==",
+      "auth_expires_at": 1759921770,
+      "auth_flow_id": "500002",
+      "auth_state": "none",
+      "can_open_in_browser": true,
+      "client_visibility": 1,
+      "global_id": "UmVzb3VyY2U6MTAwMDAxMg==",
+      "id": "1000012",
+      "metadata": {
+        "ca_data": "",
+        "resource_type": 1
+      },
+      "name": "Metabase",
+      "open_url": "",
+      "type": "fqdn"
+    },
+    {
+      "address": "s3.example.internal",
+      "admin_url": "https://example.twingate.com/resources/UmVzb3VyY2U6MTAwMDAxMw==",
+      "auth_expires_at": 1759921770,
+      "auth_flow_id": "500002",
+      "auth_state": "none",
+      "can_open_in_browser": true,
+      "client_visibility": 1,
+      "global_id": "UmVzb3VyY2U6MTAwMDAxMw==",
+      "id": "1000013",
+      "metadata": {
+        "ca_data": "",
+        "resource_type": 1
+      },
+      "name": "Object Storage",
+      "open_url": "https://s3.example.internal/",
+      "type": "fqdn"
+    },
+    {
+      "address": "api.internal.example.internal",
+      "admin_url": "https://example.twingate.com/resources/UmVzb3VyY2U6MTAwMDAxNA==",
+      "auth_expires_at": 0,
+      "auth_flow_id": "500002",
+      "auth_state": "none",
+      "can_open_in_browser": true,
+      "client_visibility": 2,
+      "global_id": "UmVzb3VyY2U6MTAwMDAxNA==",
+      "id": "1000014",
+      "metadata": {
+        "ca_data": "",
+        "resource_type": 1
+      },
+      "name": "Internal API",
+      "open_url": "",
+      "type": "fqdn"
+    },
+    {
+      "address": "mail.example.internal",
+      "admin_url": "https://example.twingate.com/resources/UmVzb3VyY2U6MTAwMDAxNQ==",
+      "auth_expires_at": 0,
+      "auth_flow_id": "500003",
+      "auth_state": "none",
+      "can_open_in_browser": true,
+      "client_visibility": 2,
+      "global_id": "UmVzb3VyY2U6MTAwMDAxNQ==",
+      "id": "1000015",
+      "metadata": {
+        "ca_data": "",
+        "resource_type": 1
+      },
+      "name": "Mail Relay",
+      "open_url": "",
+      "type": "fqdn"
+    },
+    {
+      "address": "cache.example.internal",
+      "admin_url": "https://example.twingate.com/resources/UmVzb3VyY2U6MTAwMDAxNg==",
+      "auth_expires_at": 0,
+      "auth_flow_id": "500003",
+      "auth_state": "none",
+      "can_open_in_browser": true,
+      "client_visibility": 2,
+      "global_id": "UmVzb3VyY2U6MTAwMDAxNg==",
+      "id": "1000016",
+      "metadata": {
+        "ca_data": "",
+        "resource_type": 1
+      },
+      "name": "Build Cache",
+      "open_url": "",
+      "type": "fqdn"
+    },
+    {
+      "address": "admin.example.internal",
+      "admin_url": "https://example.twingate.com/resources/UmVzb3VyY2U6MTAwMDAxNw==",
+      "auth_expires_at": 0,
+      "auth_flow_id": "500003",
+      "auth_state": "none",
+      "can_open_in_browser": true,
+      "client_visibility": 2,
+      "global_id": "UmVzb3VyY2U6MTAwMDAxNw==",
+      "id": "1000017",
+      "metadata": {
+        "ca_data": "",
+        "resource_type": 1
+      },
+      "name": "Admin Console",
+      "open_url": "",
+      "type": "fqdn"
+    },
+    {
+      "address": "monitoring.example.internal",
+      "admin_url": "https://example.twingate.com/resources/UmVzb3VyY2U6MTAwMDAxOA==",
+      "auth_expires_at": 1759921770,
+      "auth_flow_id": "500003",
+      "auth_state": "none",
+      "can_open_in_browser": true,
+      "client_visibility": 1,
+      "global_id": "UmVzb3VyY2U6MTAwMDAxOA==",
+      "id": "1000018",
+      "metadata": {
+        "ca_data": "",
+        "resource_type": 1
+      },
+      "name": "Monitoring",
+      "open_url": "https://monitoring.example.internal/",
+      "type": "fqdn"
+    },
+    {
+      "address": "logs.example.internal",
+      "admin_url": "https://example.twingate.com/resources/UmVzb3VyY2U6MTAwMDAxOQ==",
+      "auth_expires_at": 1759921770,
+      "auth_flow_id": "500003",
+      "auth_state": "none",
+      "can_open_in_browser": true,
+      "client_visibility": 2,
+      "global_id": "UmVzb3VyY2U6MTAwMDAxOQ==",
+      "id": "1000019",
+      "metadata": {
+        "ca_data": "",
+        "resource_type": 1
+      },
+      "name": "Log Search",
+      "open_url": "",
+      "type": "fqdn"
+    },
+    {
+      "address": "flags.example.internal",
+      "admin_url": "https://example.twingate.com/resources/UmVzb3VyY2U6MTAwMDAyMA==",
+      "auth_expires_at": 0,
+      "auth_flow_id": "500004",
+      "auth_state": "none",
+      "can_open_in_browser": true,
+      "client_visibility": 1,
+      "global_id": "UmVzb3VyY2U6MTAwMDAyMA==",
+      "id": "1000020",
+      "metadata": {
+        "ca_data": "",
+        "resource_type": 1
+      },
+      "name": "Feature Flags",
+      "open_url": "",
+      "type": "fqdn"
+    },
+    {
+      "address": "sandbox-db.example.internal",
+      "admin_url": "https://example.twingate.com/resources/UmVzb3VyY2U6MTAwMDAyMQ==",
+      "auth_expires_at": 1759921770,
+      "auth_flow_id": "500004",
+      "auth_state": "none",
+      "can_open_in_browser": true,
+      "client_visibility": 1,
+      "global_id": "UmVzb3VyY2U6MTAwMDAyMQ==",
+      "id": "1000021",
+      "metadata": {
+        "ca_data": "",
+        "resource_type": 1
+      },
+      "name": "Sandbox DB",
+      "open_url": "",
+      "type": "fqdn"
+    },
+    {
+      "address": "*.staging.example.internal",
+      "admin_url": "https://example.twingate.com/resources/UmVzb3VyY2U6MTAwMDAyMg==",
+      "auth_expires_at": 0,
+      "auth_flow_id": "500004",
+      "auth_state": "none",
+      "can_open_in_browser": true,
+      "client_visibility": 2,
+      "global_id": "UmVzb3VyY2U6MTAwMDAyMg==",
+      "id": "1000022",
+      "metadata": {
+        "ca_data": "",
+        "resource_type": 1
+      },
+      "name": "Staging Wildcard",
+      "open_url": "",
+      "type": "fqdn"
+    },
+    {
+      "address": "*.prod.example.internal",
+      "admin_url": "https://example.twingate.com/resources/UmVzb3VyY2U6MTAwMDAyMw==",
+      "auth_expires_at": 0,
+      "auth_flow_id": "500004",
+      "auth_state": "none",
+      "can_open_in_browser": true,
+      "client_visibility": 2,
+      "global_id": "UmVzb3VyY2U6MTAwMDAyMw==",
+      "id": "1000023",
+      "metadata": {
+        "ca_data": "",
+        "resource_type": 1
+      },
+      "name": "Production Wildcard",
+      "open_url": "",
+      "type": "fqdn"
+    },
+    {
+      "address": "*.intranet.example.internal",
+      "admin_url": "https://example.twingate.com/resources/UmVzb3VyY2U6MTAwMDAyNA==",
+      "auth_expires_at": 0,
+      "auth_flow_id": "500004",
+      "auth_state": "none",
+      "can_open_in_browser": true,
+      "client_visibility": 1,
+      "global_id": "UmVzb3VyY2U6MTAwMDAyNA==",
+      "id": "1000024",
+      "metadata": {
+        "ca_data": "",
+        "resource_type": 1
+      },
+      "name": "Intranet",
+      "open_url": "",
+      "type": "fqdn"
+    }
+  ],
+  "user": {
+    "avatar_url": "",
+    "email": "jane.doe@example.com",
+    "first_name": "Jane",
+    "id": "100001",
+    "is_admin": true,
+    "last_name": "Doe"
+  }
+}

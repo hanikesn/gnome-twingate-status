@@ -1,0 +1,13 @@
+{
+  "extends": "@tsconfig/strictest/tsconfig.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "lib": ["ES2024"],
+    "types": [],
+    "module": "NodeNext",
+    "outDir": "dist",
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true
+  },
+  "files": ["src/extension.ts", "src/prefs.ts", "src/test/live.ts", "src/test/client.test.ts"]
+}

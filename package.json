@@ -1,0 +1,47 @@
+{
+  "name": "gnome-twingate-status",
+  "private": true,
+  "description": "GNOME Shell extension showing Twingate VPN status and resources",
+  "license": "MIT",
+  "author": "Steffen Hanikel",
+  "type": "module",
+  "main": "dist/extension.js",
+  "scripts": {
+    "clear": "rm -rf dist dist-test",
+    "build": "pnpm run clear && node esbuild.js",
+    "lint": "oxlint --type-aware",
+    "lint:fix": "oxlint --type-aware --fix",
+    "format": "oxfmt",
+    "format:check": "oxfmt --check",
+    "validate": "tsc --noEmit && pnpm run lint && pnpm run format:check",
+    "test": "pnpm run build && gjs -m dist-test/test/client.test.js",
+    "dist": "pnpm run build && gnome-extensions install --force twingate-status@hanikesn.github.io.zip",
+    "shell": "export G_MESSAGES_DEBUG=all; export SHELL_DEBUG=all; export MUTTER_DEBUG_DUMMY_MODE_SPECS=1920x1080; export WAYLAND_DISPLAY=wayland-$RANDOM; dbus-run-session -- gnome-shell --nested --wayland --wayland-display=$WAYLAND_DISPLAY 2>&1 ",
+    "test:live": "pnpm run build && gjs -m dist-test/test/live.js",
+    "screenshot": "pnpm run dist && scripts/screenshot.sh",
+    "review": "pnpm run build && uvx --with \"tree-sitter<0.26\" shexli \"$PWD/twingate-status@hanikesn.github.io.zip\""
+  },
+  "dependencies": {
+    "@girs/adw-1": "^4.9.0",
+    "@girs/clutter-18": "^4.9.0",
+    "@girs/gio-2.0": "^4.9.0",
+    "@girs/giounix-2.0": "^4.9.0",
+    "@girs/gjs": "^4.9.0",
+    "@girs/glib-2.0": "^4.9.0",
+    "@girs/gnome-shell": "^50.0.4",
+    "@girs/gobject-2.0": "^4.9.0",
+    "@girs/gtk-4.0": "^4.9.0",
+    "@girs/pango-1.0": "^4.9.0",
+    "@girs/st-18": "^4.9.0"
+  },
+  "devDependencies": {
+    "@tsconfig/strictest": "^2.0.8",
+    "@typescript/native-preview": "7.0.0-dev.20251006.1",
+    "adm-zip": "^0.5.16",
+    "esbuild": "^0.25.12",
+    "oxfmt": "^0.74.0",
+    "oxlint": "^1.89.0",
+    "oxlint-tsgolint": "^7.0.2005",
+    "typescript": "^5.9.3"
+  }
+}

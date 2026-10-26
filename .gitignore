@@ -1,0 +1,6 @@
+*.zip
+node_modules/
+dist/
+dist-test/
+.idea/
+screenshots/

@@ -1,0 +1,10 @@
+{
+  "name": "Twingate Status",
+  "description": "Twingate VPN status in the top bar: connection state, signed-in user, searchable resource list, start and stop of the Twingate service, and sign-in prompts.\n\nClicking a resource opens it in the browser or copies its address to the clipboard.",
+  "uuid": "twingate-status@hanikesn.github.io",
+  "shell-version": ["49", "50"],
+  "version-name": "0.4.0",
+  "url": "https://github.com/hanikesn/gnome-twingate-status",
+  "settings-schema": "org.gnome.shell.extensions.twingate-status",
+  "gettext-domain": "twingate-status"
+}

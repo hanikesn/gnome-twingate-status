@@ -1,0 +1,29 @@
+{
+  "addr": "wiki.example.internal",
+  "alias": "",
+  "cmd": "auth-required",
+  "expires_at": 0,
+  "expiring_soon": false,
+  "name": "Wiki",
+  "resource_id": "1000010"
+}
+{
+  "cmd": "reauth",
+  "url": "https://example.twingate.com/mfa/v2/auth?mfa_token=REDACTED&response_type=code&client_id=00000000-0000-0000-0000-000000000000&state=REDACTED"
+}
+{
+  "auth_flow_id": "500002",
+  "cmd": "auth-end",
+  "reason": "",
+  "state": true
+}
+{
+  "cmd": "resources",
+  "content-length": 5964
+}
+{
+  "cmd": "status",
+  "details": "None",
+  "internet_security": 0,
+  "msg": "Authenticating"
+}
