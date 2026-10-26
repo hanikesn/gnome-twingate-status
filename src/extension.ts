@@ -126,12 +126,18 @@ class TwingateIndicator extends Button {
         GObject.registerClass(this);
     }
 
-    private readonly _icon: St.Icon;
-    private readonly _statusItem: PopupMenu.PopupImageMenuItem;
-    private readonly _statusDetail: St.Label;
-    private readonly _searchEntry: St.Entry;
-    private readonly _resourcesSection: PopupMenu.PopupMenuSection;
-    private readonly _controlServiceItem: PopupMenu.PopupMenuItem;
+    private _icon: St.Icon | null = null;
+    private _statusItem: PopupMenu.PopupImageMenuItem | null = null;
+    private _statusDetail: St.Label | null = null;
+    private _searchEntry: St.Entry | null = null;
+    private _searchTextChangedId = 0;
+    private _searchActivateId = 0;
+    private _menuOpenStateId = 0;
+    private _sourceDestroyId = 0;
+    private _authActivatedId = 0;
+    private _authDestroyId = 0;
+    private _resourcesSection: PopupMenu.PopupMenuSection | null = null;
+    private _controlServiceItem: PopupMenu.PopupMenuItem | null = null;
     private readonly _socketClient: TwingateSocketClient;
     private readonly _systemdService: SystemdService;
     private readonly _settingsSignals: number[] = [];
@@ -165,8 +171,8 @@ class TwingateIndicator extends Button {
         this.add_child(this._icon);
 
         this._statusItem = new PopupMenu.PopupImageMenuItem('', STATUS_ICONS.connecting);
-        this._statusItem.reactive = false;
-        this._statusItem.can_focus = false;
+        this._statusItem!.reactive = false;
+        this._statusItem!.can_focus = false;
         this._statusDetail = ellipsized(
             new St.Label({
                 style_class: 'twingate-status-detail',
@@ -175,20 +181,21 @@ class TwingateIndicator extends Button {
                 y_align: Clutter.ActorAlign.CENTER,
             }),
         );
-        this._statusItem.add_child(this._statusDetail);
+        this._statusItem!.add_child(this._statusDetail);
         menu.addMenuItem(this._statusItem);
 
-        this._searchEntry = new St.Entry({
+        const searchEntry = new St.Entry({
             style_class: 'twingate-search-entry',
             hint_text: _('Search resources'),
             can_focus: true,
             x_expand: true,
         });
-        this._searchEntry.set_primary_icon(new St.Icon({ icon_name: 'edit-find-symbolic', icon_size: 16 }));
-        this._searchEntry.clutter_text.connect('text-changed', () => this._renderResources());
-        this._searchEntry.clutter_text.connect('activate', () => this._activateFirstMatch());
+        searchEntry.set_primary_icon(new St.Icon({ icon_name: 'edit-find-symbolic', icon_size: 16 }));
+        this._searchTextChangedId = searchEntry.clutter_text.connect('text-changed', () => this._renderResources());
+        this._searchActivateId = searchEntry.clutter_text.connect('activate', () => this._activateFirstMatch());
+        this._searchEntry = searchEntry;
         const searchItem = new PopupMenu.PopupBaseMenuItem({ reactive: false, can_focus: false });
-        searchItem.add_child(this._searchEntry);
+        searchItem.add_child(searchEntry);
         menu.addMenuItem(searchItem);
         menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
 
@@ -196,18 +203,18 @@ class TwingateIndicator extends Button {
         menu.addMenuItem(this._resourcesSection);
 
         this._controlServiceItem = new PopupMenu.PopupMenuItem(_('Connect'));
-        this._controlServiceItem.connect('activate', () => this._toggleService());
+        this._controlServiceItem!.connect('activate', () => this._toggleService());
         menu.addMenuItem(this._controlServiceItem);
 
         const settingsItem = new PopupMenu.PopupMenuItem(_('Settings'));
         settingsItem.connect('activate', () => openPreferences());
         menu.addMenuItem(settingsItem);
 
-        menu.connect('open-state-changed', (_menu, open) => {
+        this._menuOpenStateId = menu.connect('open-state-changed', (_menu, open) => {
             if (open) {
-                this._searchEntry.grab_key_focus();
+                searchEntry.grab_key_focus();
             } else {
-                this._searchEntry.set_text('');
+                searchEntry.set_text('');
             }
         });
 
@@ -291,10 +298,38 @@ class TwingateIndicator extends Button {
         this._settingsSignals.length = 0;
         this._systemdService.stopWatching();
         this._socketClient.destroy();
-        this._authNotification?.destroy();
-        this._authNotification = null;
-        this._notificationSource?.destroy(MessageTray.NotificationDestroyedReason.SOURCE_CLOSED);
-        this._notificationSource = null;
+
+        if (this._menuOpenStateId) {
+            this.menu.disconnect(this._menuOpenStateId);
+            this._menuOpenStateId = 0;
+        }
+        this._controlServiceItem?.destroy();
+        this._controlServiceItem = null;
+        this._resourcesSection?.destroy();
+        this._resourcesSection = null;
+        this._statusDetail?.destroy();
+        this._statusDetail = null;
+        this._statusItem?.destroy();
+        this._statusItem = null;
+        this._icon?.destroy();
+        this._icon = null;
+        if (this._searchEntry) {
+            this._searchEntry.clutter_text.disconnect(this._searchTextChangedId);
+            this._searchEntry.clutter_text.disconnect(this._searchActivateId);
+            this._searchEntry.destroy();
+            this._searchEntry = null;
+        }
+        if (this._authNotification) {
+            this._authNotification.disconnect(this._authActivatedId);
+            this._authNotification.disconnect(this._authDestroyId);
+            this._authNotification.destroy();
+            this._authNotification = null;
+        }
+        if (this._notificationSource) {
+            this._notificationSource.disconnect(this._sourceDestroyId);
+            this._notificationSource.destroy(MessageTray.NotificationDestroyedReason.SOURCE_CLOSED);
+            this._notificationSource = null;
+        }
         super.destroy();
     }
 
@@ -302,16 +337,16 @@ class TwingateIndicator extends Button {
 
     private _setState(state: ConnectionState): void {
         this._state = state;
-        this._statusItem.label.text = STATE_LABELS[state]();
-        this._statusItem.setIcon(STATUS_ICONS[state]);
-        this._statusDetail.text = state === 'online' || state === 'authenticating' ? (this._user?.email ?? '') : '';
+        this._statusItem!.label.text = STATE_LABELS[state]();
+        this._statusItem!.setIcon(STATUS_ICONS[state]);
+        this._statusDetail!.text = state === 'online' || state === 'authenticating' ? (this._user?.email ?? '') : '';
 
-        for (const cls of Object.values(INDICATOR_STYLE)) if (cls) this._icon.remove_style_class_name(cls);
-        if (INDICATOR_STYLE[state]) this._icon.add_style_class_name(INDICATOR_STYLE[state]);
+        for (const cls of Object.values(INDICATOR_STYLE)) if (cls) this._icon!.remove_style_class_name(cls);
+        if (INDICATOR_STYLE[state]) this._icon!.add_style_class_name(INDICATOR_STYLE[state]);
 
         const serviceRunning = state === 'connecting' || state === 'authenticating' || state === 'online';
-        this._controlServiceItem.label.text = serviceRunning ? _('Disconnect') : _('Connect');
-        this._controlServiceItem.setSensitive(state !== 'unavailable');
+        this._controlServiceItem!.label.text = serviceRunning ? _('Disconnect') : _('Connect');
+        this._controlServiceItem!.setSensitive(state !== 'unavailable');
     }
 
     private _setDaemonStatus(status: Twingate.Status): void {
@@ -338,7 +373,7 @@ class TwingateIndicator extends Button {
     private _getNotificationSource(): MessageTray.Source {
         if (!this._notificationSource) {
             const source = new MessageTray.Source({ title: _('Twingate VPN'), iconName: 'network-vpn-symbolic' });
-            source.connect('destroy', () => {
+            this._sourceDestroyId = source.connect('destroy', () => {
                 if (this._notificationSource === source) this._notificationSource = null;
             });
             Main.messageTray.add(source);
@@ -363,7 +398,7 @@ class TwingateIndicator extends Button {
 
     private async _toggleService(): Promise<void> {
         const stopping = this._systemdService.isActive;
-        this._controlServiceItem.setSensitive(false);
+        this._controlServiceItem!.setSensitive(false);
         try {
             if (stopping) {
                 await this._systemdService.stop();
@@ -375,7 +410,7 @@ class TwingateIndicator extends Button {
             this._logger.error(`${action}:`, errorMessage(e));
             if (!this._destroyed) this._notify(action, errorMessage(e), MessageTray.Urgency.HIGH);
         } finally {
-            if (!this._destroyed) this._controlServiceItem.setSensitive(true);
+            if (!this._destroyed) this._controlServiceItem!.setSensitive(true);
         }
     }
 
@@ -428,9 +463,9 @@ class TwingateIndicator extends Button {
             isTransient: false,
             resident: true,
         });
-        notification.connect('activated', () => this._openUri(msg.url));
+        this._authActivatedId = notification.connect('activated', () => this._openUri(msg.url));
         notification.addAction(_('Authenticate'), () => this._openUri(msg.url));
-        notification.connect('destroy', () => {
+        this._authDestroyId = notification.connect('destroy', () => {
             if (this._authNotification === notification) this._authNotification = null;
         });
 
@@ -467,7 +502,7 @@ class TwingateIndicator extends Button {
     }
 
     private _matches(): Twingate.Resource[] {
-        const query = this._searchEntry.get_text().trim().toLowerCase();
+        const query = (this._searchEntry?.get_text() ?? '').trim().toLowerCase();
         if (!query) return this._resources;
         return this._resources.filter(
             (r) => r.name.toLowerCase().includes(query) || r.address.toLowerCase().includes(query),
@@ -475,26 +510,26 @@ class TwingateIndicator extends Button {
     }
 
     private _renderResources(): void {
-        this._resourcesSection.removeAll();
+        this._resourcesSection!.removeAll();
         const showHidden = this._settings.get_boolean('show-hidden-resources');
-        const filtering = this._searchEntry.get_text().trim() !== '';
+        const filtering = (this._searchEntry?.get_text() ?? '').trim() !== '';
         const matches = this._matches().filter((r) => showHidden || r.client_visibility !== 2);
 
         if (matches.length === 0) {
             if (filtering || this._resources.length > 0) {
-                this._resourcesSection.addMenuItem(
+                this._resourcesSection!.addMenuItem(
                     new PopupMenu.PopupMenuItem(_('No matching resources'), { reactive: false }),
                 );
-                this._resourcesSection.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
+                this._resourcesSection!.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
             }
             return;
         }
 
         if (filtering) {
-            this._addResourceItems(this._resourcesSection, matches.slice(0, MAX_SEARCH_RESULTS));
+            this._addResourceItems(this._resourcesSection!, matches.slice(0, MAX_SEARCH_RESULTS));
             const rest = matches.length - MAX_SEARCH_RESULTS;
             if (rest > 0) {
-                this._resourcesSection.addMenuItem(
+                this._resourcesSection!.addMenuItem(
                     new PopupMenu.PopupMenuItem(
                         ngettext(
                             '%d more, keep typing to narrow down',
@@ -505,7 +540,7 @@ class TwingateIndicator extends Button {
                     ),
                 );
             }
-            this._resourcesSection.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
+            this._resourcesSection!.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
             return;
         }
 
@@ -515,24 +550,24 @@ class TwingateIndicator extends Button {
         const browser = visible.filter((r) => r.auth_state !== 'pending' && r.open_url);
         const other = visible.filter((r) => r.auth_state !== 'pending' && !r.open_url);
 
-        this._addResourceItems(this._resourcesSection, pending);
-        this._addResourceItems(this._resourcesSection, browser);
+        this._addResourceItems(this._resourcesSection!, pending);
+        this._addResourceItems(this._resourcesSection!, browser);
         if (pending.length + browser.length > 0) {
-            this._resourcesSection.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
+            this._resourcesSection!.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
         }
         this._addResourceSubMenu(other, ngettext('%d Resource', '%d Resources', other.length).format(other.length));
         this._addResourceSubMenu(
             hidden,
             ngettext('%d Hidden Resource', '%d Hidden Resources', hidden.length).format(hidden.length),
         );
-        this._resourcesSection.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
+        this._resourcesSection!.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
     }
 
     private _addResourceSubMenu(resources: Twingate.Resource[], title: string): void {
         if (resources.length === 0) return;
         const item = new PopupMenu.PopupSubMenuMenuItem(title);
         this._addResourceItems(item.menu, resources);
-        this._resourcesSection.addMenuItem(item);
+        this._resourcesSection!.addMenuItem(item);
     }
 
     private _addResourceItems(menu: PopupMenu.PopupMenuBase, resources: Twingate.Resource[]): void {
