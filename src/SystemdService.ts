@@ -36,7 +36,7 @@ export class SystemdService {
     private _debounceTimerId: number | null = null;
     private _pendingState: ServiceState | null = null;
     private _lastEmittedState: ServiceState | null = null;
-    private _subscribed = false;
+    private _manager: Gio.DBusProxy | null = null;
     private _cancellable: Gio.Cancellable | null = null;
 
     constructor(
@@ -64,7 +64,7 @@ export class SystemdService {
 
         try {
             await callProxy(manager, 'Subscribe', null, Gio.DBusCallFlags.NONE, cancellable);
-            this._subscribed = true;
+            this._manager = manager;
         } catch (e) {
             // Another consumer on the shell's shared system bus connection already
             // subscribed; signals flow either way and we must not unsubscribe for them.
@@ -108,12 +108,11 @@ export class SystemdService {
         this._unitProxy = null;
         this._lastEmittedState = null;
 
-        if (this._subscribed) {
-            this._subscribed = false;
-            getSystemdManager()
-                .then((manager) => callProxy(manager, 'Unsubscribe', null))
-                .catch((e) => this._logger.debug('Unsubscribe failed', e));
-        }
+        // Fire-and-forget on the proxy we already hold: nothing new is created
+        // after disable().
+        const manager = this._manager;
+        this._manager = null;
+        manager?.call('Unsubscribe', null, Gio.DBusCallFlags.NONE, -1, null, null);
     }
 
     start(): Promise<void> {

@@ -10,7 +10,25 @@ const metadata = JSON.parse(await fs.readFile(resolve(root, 'src/metadata.json')
 
 console.log(`Building ${metadata.name} ${metadata['version-name']}...`);
 
+// Map the typed @girs modules straight onto the runtime imports so the bundle
+// reads like a hand-written extension instead of inlining re-export shims.
+const alias = {
+    '@girs/gio-2.0': 'gi://Gio',
+    '@girs/glib-2.0': 'gi://GLib',
+    '@girs/gobject-2.0': 'gi://GObject',
+    '@girs/pango-1.0': 'gi://Pango',
+    '@girs/adw-1': 'gi://Adw',
+    '@girs/gtk-4.0': 'gi://Gtk?version=4.0',
+    '@girs/gnome-shell/extensions/extension': 'resource:///org/gnome/shell/extensions/extension.js',
+    '@girs/gnome-shell/extensions/prefs': 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js',
+    '@girs/gnome-shell/ui/main': 'resource:///org/gnome/shell/ui/main.js',
+    '@girs/gnome-shell/ui/panelMenu': 'resource:///org/gnome/shell/ui/panelMenu.js',
+    '@girs/gnome-shell/ui/popupMenu': 'resource:///org/gnome/shell/ui/popupMenu.js',
+    '@girs/gnome-shell/ui/messageTray': 'resource:///org/gnome/shell/ui/messageTray.js',
+};
+
 const common = {
+    alias,
     bundle: true,
     // Keep enable()/disable() even though nothing in the bundle references them.
     treeShaking: false,

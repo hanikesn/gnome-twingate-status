@@ -144,6 +144,8 @@ class TwingateIndicator extends Button {
     // Set while the user triggered an auth flow from the menu, so the resulting
     // reauth URL opens directly instead of asking again via notification.
     private _userRequestedAuth = false;
+    // Async D-Bus work may finish after disable(); nothing may be created then.
+    private _destroyed = false;
 
     constructor(
         private readonly _logger: ConsoleLike,
@@ -244,6 +246,7 @@ class TwingateIndicator extends Button {
         });
 
         this._systemdService.startWatching().catch((e) => {
+            if (this._destroyed) return;
             this._logger.warn('Cannot watch the Twingate unit:', errorMessage(e));
             this._setState('unavailable');
         });
@@ -260,7 +263,8 @@ class TwingateIndicator extends Button {
     // socket, so the user gets every sign-in prompt twice until one is off.
     private async _checkNotifier(): Promise<void> {
         if (!this._settings.get_boolean('notifier-hint')) return;
-        if ((await getUserUnitState(NOTIFIER_UNIT)) !== 'active') return;
+        const state = await getUserUnitState(NOTIFIER_UNIT);
+        if (this._destroyed || state !== 'active') return;
 
         const notification = this._notify(
             _("Twingate's Notifier Is Also Running"),
@@ -273,13 +277,16 @@ class TwingateIndicator extends Button {
                 .then(() => this._settings.set_boolean('notifier-hint', false))
                 .catch((e) => {
                     this._logger.error('Failed to disable the Twingate notifier:', errorMessage(e));
-                    this._notify(_('Could Not Disable Notifier'), errorMessage(e), MessageTray.Urgency.HIGH);
+                    if (!this._destroyed) {
+                        this._notify(_('Could Not Disable Notifier'), errorMessage(e), MessageTray.Urgency.HIGH);
+                    }
                 });
         });
         notification.addAction(_("Don't Ask Again"), () => this._settings.set_boolean('notifier-hint', false));
     }
 
     override destroy() {
+        this._destroyed = true;
         for (const id of this._settingsSignals) this._settings.disconnect(id);
         this._settingsSignals.length = 0;
         this._systemdService.stopWatching();
@@ -366,9 +373,9 @@ class TwingateIndicator extends Button {
         } catch (e) {
             const action = stopping ? _('Failed to Stop Service') : _('Failed to Start Service');
             this._logger.error(`${action}:`, errorMessage(e));
-            this._notify(action, errorMessage(e), MessageTray.Urgency.HIGH);
+            if (!this._destroyed) this._notify(action, errorMessage(e), MessageTray.Urgency.HIGH);
         } finally {
-            this._controlServiceItem.setSensitive(true);
+            if (!this._destroyed) this._controlServiceItem.setSensitive(true);
         }
     }
 
