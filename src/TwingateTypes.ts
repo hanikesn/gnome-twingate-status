@@ -54,12 +54,16 @@ export type AuthEndMessage = {
 type CommandMessage =
     | ({ cmd: 'status' } & StatusMessage)
     | ({ cmd: 'reauth' } & ReAuthMessage)
+    | ({ cmd: 'login' } & LoginMessage)
     | ({ cmd: 'auth-end' } & AuthEndMessage)
     | ({ cmd: 'auth-required' } & AuthRequiredMessage)
     | { cmd: 'resources'; 'content-length': number }
     | { cmd: 'status-end' };
 export type Message = CommandMessage | ResourceMessage;
 export type ReAuthMessage = {
+    url: string;
+};
+export type LoginMessage = {
     url: string;
 };
 export type StatusMessage = {

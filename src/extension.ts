@@ -430,6 +430,9 @@ class TwingateIndicator extends Button {
             case 'reauth':
                 this._handleReauth(message);
                 break;
+            case 'login':
+                this._handleLogin(message);
+                break;
             case 'auth-required':
                 this._logger.debug(`Authentication required for ${message.name}`);
                 // The resource list carries the auth state, refresh it.
@@ -453,18 +456,32 @@ class TwingateIndicator extends Button {
             return;
         }
 
+        this._showAuthNotification(_('Authentication Required'), _('Twingate needs you to sign in again'), msg.url);
+    }
+
+    // The daemon replays a pending login to every client that connects and
+    // gives up with "open_url timeout" after 5 minutes nobody signs in.
+    private _handleLogin(msg: Twingate.LoginMessage): void {
+        this._showAuthNotification(
+            _('Sign In to Connect'),
+            _('Finish signing in to connect to your Twingate network'),
+            msg.url,
+        );
+    }
+
+    private _showAuthNotification(title: string, body: string, url: string): void {
         this._authNotification?.destroy();
 
         const notification = new MessageTray.Notification({
             source: this._getNotificationSource(),
-            title: _('Authentication Required'),
-            body: _('Twingate needs you to sign in again'),
+            title,
+            body,
             urgency: MessageTray.Urgency.HIGH,
             isTransient: false,
             resident: true,
         });
-        this._authActivatedId = notification.connect('activated', () => this._openUri(msg.url));
-        notification.addAction(_('Authenticate'), () => this._openUri(msg.url));
+        this._authActivatedId = notification.connect('activated', () => this._openUri(url));
+        notification.addAction(_('Authenticate'), () => this._openUri(url));
         this._authDestroyId = notification.connect('destroy', () => {
             if (this._authNotification === notification) this._authNotification = null;
         });

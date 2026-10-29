@@ -88,6 +88,7 @@ Daemon to client:
 | `status-end`    | Trailer after the initial status burst                       |
 | `resources`     | Header with `content-length`; the next packet is the payload |
 | `reauth`        | Re-authentication needed, `url` opens the sign-in page       |
+| `login`         | Client sign-in pending, `url` opens the identity provider    |
 | `auth-required` | A resource needs authentication                              |
 | `auth-end`      | Authentication flow finished, `state` is the result          |
 
