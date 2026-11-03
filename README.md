@@ -14,6 +14,7 @@ notifications.
     - other resources copy their address to the clipboard
     - hidden resources live in a collapsed submenu
 - Notification with an **Authenticate** action when Twingate asks for re-auth
+  or a connection hits a resource that needs MFA
 - Settings entry in the menu
 - One-time prompt when Twingate's own `twingate-desktop-notifier` user service
   is running, since both show the same sign-in prompts. "Disable Notifier"
