@@ -11,6 +11,11 @@
       <summary>systemd unit</summary>
       <description>System unit that is started, stopped and watched.</description>
     </key>
+    <key name="auto-connect" type="b">
+      <default>true</default>
+      <summary>Connect on sign-in</summary>
+      <description>Start the systemd unit when the session starts and it is stopped or failed.</description>
+    </key>
     <key name="show-hidden-resources" type="b">
       <default>true</default>
       <summary>Show hidden resources</summary>

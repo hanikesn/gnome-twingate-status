@@ -9,12 +9,16 @@ notifications.
 - Panel icon reflecting the service and tunnel state
 - Connect / Disconnect menu entry that starts or stops `twingate.service`
   (polkit prompts for authorization when needed)
+- Connect on sign-in: starts the unit at session start when it is stopped or
+  failed, e.g. after the boot-time start gave up waiting for a login
+- Opens the sign-in page in the browser when Twingate asks for a login or
+  re-auth, once per sign-in URL
 - Signed-in user and resource list in the menu
     - resources with a browser URL open directly
     - other resources copy their address to the clipboard
     - hidden resources live in a collapsed submenu
-- Notification with an **Authenticate** action when Twingate asks for re-auth
-  or a connection hits a resource that needs MFA
+- Notification with an **Authenticate** action when a connection hits a
+  resource that needs MFA
 - Settings entry in the menu
 - One-time prompt when Twingate's own `twingate-desktop-notifier` user service
   is running, since both show the same sign-in prompts. "Disable Notifier"
@@ -25,6 +29,27 @@ notifications.
 - GNOME Shell 49 or 50
 - Twingate Linux client providing the `SOCK_SEQPACKET` socket at
   `/run/twingate/auth.sock` and running as `twingate.service`
+
+### Connecting without a password prompt
+
+Starting a system unit needs admin authorization on most distributions, so
+connect on sign-in shows a polkit prompt. To let local active sessions of
+`wheel` members start and stop Twingate without one, add
+`/etc/polkit-1/rules.d/50-twingate.rules`:
+
+```js
+polkit.addRule(function (action, subject) {
+    if (
+        action.id == 'org.freedesktop.systemd1.manage-units' &&
+        action.lookup('unit') == 'twingate.service' &&
+        subject.local &&
+        subject.active &&
+        subject.isInGroup('wheel')
+    ) {
+        return polkit.Result.YES;
+    }
+});
+```
 
 ## Installation
 

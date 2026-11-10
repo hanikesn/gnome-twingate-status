@@ -39,6 +39,11 @@ const NOTIFIER_UNIT = 'twingate-desktop-notifier.service';
 // Auth expiry is only worth a line when it is about to bite.
 const EXPIRY_WARNING_SECONDS = 2 * 60 * 60;
 
+// The daemon replays a pending sign-in to every client that connects, and the
+// indicator is rebuilt on every unlock and settings change. Module state lives
+// as long as the shell process, so each sign-in URL opens the browser once.
+let openedSignInUrl: string | null = null;
+
 const STATE_LABELS: Record<ConnectionState, () => string> = {
     unavailable: () => _('Twingate not available'),
     stopped: () => _('Disconnected'),
@@ -149,18 +154,24 @@ class TwingateIndicator extends Button {
     private _authNotification: MessageTray.Notification | null = null;
     private _authResourceId: string | null = null;
     // Set while the user triggered an auth flow from the menu, so the resulting
-    // reauth URL opens directly instead of asking again via notification.
+    // reauth URL opens even if the same URL was opened before.
     private _userRequestedAuth = false;
     // Async D-Bus work may finish after disable(); nothing may be created then.
     private _destroyed = false;
+    // Set at session start until the first settled unit state decides whether
+    // the unit needs starting.
+    private _autoConnectPending: boolean;
+    private _startupCompleteId = 0;
 
     constructor(
         private readonly _logger: ConsoleLike,
         private readonly _settings: Gio.Settings,
         iconDir: string,
         openPreferences: () => void,
+        autoConnect: boolean,
     ) {
         super(0.0, _('Twingate Status'));
+        this._autoConnectPending = autoConnect;
 
         const menu = this.menu as PopupMenu.PopupMenu;
         menu.box.add_style_class_name('twingate-menu');
@@ -237,6 +248,7 @@ class TwingateIndicator extends Button {
 
         this._systemdService = new SystemdService(this._settings.get_string('service-name'), this._logger, {
             onActive: () => {
+                this._autoConnectPending = false;
                 this._setState('connecting');
                 this._socketClient.serviceActive();
             },
@@ -244,16 +256,34 @@ class TwingateIndicator extends Button {
                 this._socketClient.serviceInactive();
                 this._updateResources([], null);
                 this._setState('stopped');
+                this._maybeAutoConnect();
             },
             onFailed: () => {
                 this._socketClient.serviceInactive();
                 this._updateResources([], null);
                 this._setState('failed');
-                this._notify(_('Service Failed'), _('The Twingate service has failed'), MessageTray.Urgency.HIGH);
+                // At sign-in this is usually the boot-time start that timed out
+                // waiting for a login nobody could give; it is restarted below.
+                if (this._autoConnectPending) {
+                    this._maybeAutoConnect();
+                } else {
+                    this._notify(_('Service Failed'), _('The Twingate service has failed'), MessageTray.Urgency.HIGH);
+                }
             },
         });
 
+        // The shell's polkit agent may not be registered while extensions are
+        // enabled during startup; a StartUnit sent then fails without a prompt.
+        if (autoConnect && Main.layoutManager._startingUp) {
+            this._startupCompleteId = Main.layoutManager.connect('startup-complete', () => {
+                Main.layoutManager.disconnect(this._startupCompleteId);
+                this._startupCompleteId = 0;
+                this._maybeAutoConnect();
+            });
+        }
+
         this._systemdService.startWatching().catch((e) => {
+            this._autoConnectPending = false;
             if (this._destroyed) return;
             this._logger.warn('Cannot watch the Twingate unit:', errorMessage(e));
             this._setState('unavailable');
@@ -295,6 +325,10 @@ class TwingateIndicator extends Button {
 
     override destroy() {
         this._destroyed = true;
+        if (this._startupCompleteId) {
+            Main.layoutManager.disconnect(this._startupCompleteId);
+            this._startupCompleteId = 0;
+        }
         for (const id of this._settingsSignals) this._settings.disconnect(id);
         this._settingsSignals.length = 0;
         this._systemdService.stopWatching();
@@ -397,6 +431,15 @@ class TwingateIndicator extends Button {
 
     // --- service control ---------------------------------------------------
 
+    private _maybeAutoConnect(): void {
+        if (!this._autoConnectPending || this._startupCompleteId || this._destroyed) return;
+        const state = this._systemdService.state;
+        if (state !== 'inactive' && state !== 'failed') return;
+        this._autoConnectPending = false;
+        this._logger.info('Starting the Twingate unit on sign-in');
+        void this._toggleService();
+    }
+
     private async _toggleService(): Promise<void> {
         const stopping = this._systemdService.isActive;
         this._controlServiceItem!.setSensitive(false);
@@ -449,15 +492,9 @@ class TwingateIndicator extends Button {
     }
 
     private _handleReauth(msg: Twingate.ReAuthMessage): void {
-        if (this._userRequestedAuth) {
-            this._userRequestedAuth = false;
-            this._openUri(msg.url);
-            return;
-        }
-
-        this._showAuthNotification(_('Authentication Required'), _('Twingate needs you to sign in again'), () =>
-            this._openUri(msg.url),
-        );
+        const force = this._userRequestedAuth;
+        this._userRequestedAuth = false;
+        this._openSignIn(msg.url, force);
     }
 
     // Sent when something on the machine connects to a resource that needs
@@ -477,14 +514,17 @@ class TwingateIndicator extends Button {
         );
     }
 
-    // The daemon replays a pending login to every client that connects and
-    // gives up with "open_url timeout" after 5 minutes nobody signs in.
     private _handleLogin(msg: Twingate.LoginMessage): void {
-        this._showAuthNotification(
-            _('Sign In to Connect'),
-            _('Finish signing in to connect to your Twingate network'),
-            () => this._openUri(msg.url),
-        );
+        this._openSignIn(msg.url, false);
+    }
+
+    // The daemon gives up with "open_url timeout" after 5 minutes nobody signs
+    // in, and a notification is easy to miss with banners off, so the identity
+    // provider opens directly.
+    private _openSignIn(url: string, force: boolean): void {
+        if (!force && url === openedSignInUrl) return;
+        openedSignInUrl = url;
+        this._openUri(url);
     }
 
     private _showAuthNotification(
@@ -690,7 +730,15 @@ export default class TwingateExtension extends Extension {
         if (!this._settings) return;
         this._indicator = Main.panel.addToStatusArea(
             this.uuid,
-            new TwingateIndicator(this.getLogger(), this._settings, `${this.path}/icons`, () => this.openPreferences()),
+            new TwingateIndicator(
+                this.getLogger(),
+                this._settings,
+                `${this.path}/icons`,
+                () => this.openPreferences(),
+                // Only enables during shell startup are a sign-in; unlock,
+                // rebuilds and manual enables must not start the unit.
+                Main.layoutManager._startingUp && this._settings.get_boolean('auto-connect'),
+            ),
         );
     }
 

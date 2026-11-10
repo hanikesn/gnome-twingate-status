@@ -27,6 +27,17 @@ export default class TwingatePreferences extends ExtensionPreferences {
             ),
         );
 
+        const connectionGroup = new Adw.PreferencesGroup({ title: _('Connection') });
+        page.add(connectionGroup);
+        connectionGroup.add(
+            switchRow(
+                settings,
+                'auto-connect',
+                _('Connect on sign-in'),
+                _('Starts the systemd unit, which may ask for your password'),
+            ),
+        );
+
         const daemonGroup = new Adw.PreferencesGroup({
             title: _('Twingate Client'),
             description: _('Changing these reconnects the extension'),
