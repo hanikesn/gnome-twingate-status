@@ -139,8 +139,6 @@ class TwingateIndicator extends Button {
     private _searchActivateId = 0;
     private _menuOpenStateId = 0;
     private _sourceDestroyId = 0;
-    private _authActivatedId = 0;
-    private _authDestroyId = 0;
     private _resourcesSection: PopupMenu.PopupMenuSection | null = null;
     private _controlServiceItem: PopupMenu.PopupMenuItem | null = null;
     private readonly _socketClient: TwingateSocketClient;
@@ -151,10 +149,11 @@ class TwingateIndicator extends Button {
     private _resources: Twingate.Resource[] = [];
     private _user: Twingate.User | null = null;
     private _notificationSource: MessageTray.Source | null = null;
-    private _authNotification: MessageTray.Notification | null = null;
-    private _authResourceId: string | null = null;
-    // Set while the user triggered an auth flow from the menu, so the resulting
-    // reauth URL opens even if the same URL was opened before.
+    // Resource whose auth flow is running; every retried connection repeats
+    // auth-required, which must not restart the flow or reopen the page.
+    private _pendingAuthResource: string | null = null;
+    // Set while an auth flow we started is running, so the resulting reauth URL
+    // opens even if the same URL was opened before.
     private _userRequestedAuth = false;
     // Async D-Bus work may finish after disable(); nothing may be created then.
     private _destroyed = false;
@@ -238,6 +237,9 @@ class TwingateIndicator extends Button {
                     this._socketClient.sendCommand({ cmd: 'resources' });
                 },
                 onDisconnected: () => {
+                    // A restarted daemon has no auth flow left to finish.
+                    this._pendingAuthResource = null;
+                    this._userRequestedAuth = false;
                     this._updateResources([], null);
                     if (this._systemdService.isActive) this._setState('connecting');
                 },
@@ -353,12 +355,6 @@ class TwingateIndicator extends Button {
             this._searchEntry.clutter_text.disconnect(this._searchActivateId);
             this._searchEntry.destroy();
             this._searchEntry = null;
-        }
-        if (this._authNotification) {
-            this._authNotification.disconnect(this._authActivatedId);
-            this._authNotification.disconnect(this._authDestroyId);
-            this._authNotification.destroy();
-            this._authNotification = null;
         }
         if (this._notificationSource) {
             this._notificationSource.disconnect(this._sourceDestroyId);
@@ -502,16 +498,10 @@ class TwingateIndicator extends Button {
     private _handleAuthRequired(msg: Twingate.AuthRequiredMessage): void {
         // The resource list carries the auth state, refresh it.
         this._socketClient.sendCommand({ cmd: 'resources' });
-        // Every retried connection repeats the message; don't re-pop the banner.
-        if (this._authNotification && this._authResourceId === msg.resource_id) return;
-
-        const name = msg.alias || msg.name;
-        this._showAuthNotification(
-            _('Additional Authentication Needed'),
-            _('Authenticate to access %s').format(name),
-            () => this._requestAuth(msg.name),
-            msg.resource_id,
-        );
+        if (this._pendingAuthResource === msg.resource_id) return;
+        // Answering right away makes the daemon send reauth with the URL, which
+        // then opens like a menu-triggered auth.
+        if (this._requestAuth(msg.name)) this._pendingAuthResource = msg.resource_id;
     }
 
     private _handleLogin(msg: Twingate.LoginMessage): void {
@@ -527,37 +517,9 @@ class TwingateIndicator extends Button {
         this._openUri(url);
     }
 
-    private _showAuthNotification(
-        title: string,
-        body: string,
-        authenticate: () => void,
-        resourceId: string | null = null,
-    ): void {
-        this._authNotification?.destroy();
-        this._authResourceId = resourceId;
-
-        const notification = new MessageTray.Notification({
-            source: this._getNotificationSource(),
-            title,
-            body,
-            urgency: MessageTray.Urgency.HIGH,
-            isTransient: false,
-            resident: true,
-        });
-        this._authActivatedId = notification.connect('activated', authenticate);
-        notification.addAction(_('Authenticate'), authenticate);
-        this._authDestroyId = notification.connect('destroy', () => {
-            if (this._authNotification === notification) this._authNotification = null;
-        });
-
-        this._authNotification = notification;
-        this._getNotificationSource().addNotification(notification);
-    }
-
     private _handleAuthEnd(msg: Twingate.AuthEndMessage): void {
         this._userRequestedAuth = false;
-        this._authNotification?.destroy();
-        this._authNotification = null;
+        this._pendingAuthResource = null;
         if (msg.state) {
             this._logger.info('Authentication completed');
         } else {
@@ -686,11 +648,9 @@ class TwingateIndicator extends Button {
         }
     }
 
-    private _requestAuth(resourceName: string): void {
-        this._userRequestedAuth = true;
-        if (!this._socketClient.sendCommand({ cmd: 'auth', resource: resourceName })) {
-            this._userRequestedAuth = false;
-        }
+    private _requestAuth(resourceName: string): boolean {
+        this._userRequestedAuth = this._socketClient.sendCommand({ cmd: 'auth', resource: resourceName });
+        return this._userRequestedAuth;
     }
 
     private _openUri(uri: string): void {

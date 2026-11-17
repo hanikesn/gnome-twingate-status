@@ -1,8 +1,8 @@
 # Twingate Status GNOME Extension
 
 A GNOME Shell extension that shows the Twingate VPN connection state in the top
-bar, lists accessible resources, and surfaces authentication requests as
-notifications.
+bar, lists accessible resources, and opens sign-in pages when Twingate asks for
+authentication.
 
 ## Features
 
@@ -17,8 +17,8 @@ notifications.
     - resources with a browser URL open directly
     - other resources copy their address to the clipboard
     - hidden resources live in a collapsed submenu
-- Notification with an **Authenticate** action when a connection hits a
-  resource that needs MFA
+- Opens the sign-in page when a connection from anywhere on the machine (ssh,
+  curl, browser) hits a resource that needs MFA, once per auth flow
 - Settings entry in the menu
 - One-time prompt when Twingate's own `twingate-desktop-notifier` user service
   is running, since both show the same sign-in prompts. "Disable Notifier"
