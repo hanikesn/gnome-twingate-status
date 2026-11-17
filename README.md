@@ -18,7 +18,7 @@ authentication.
     - other resources copy their address to the clipboard
     - hidden resources live in a collapsed submenu
 - Opens the sign-in page when a connection from anywhere on the machine (ssh,
-  curl, browser) hits a resource that needs MFA, once per auth flow
+  curl, browser) hits a resource that needs MFA
 - Settings entry in the menu
 - One-time prompt when Twingate's own `twingate-desktop-notifier` user service
   is running, since both show the same sign-in prompts. "Disable Notifier"

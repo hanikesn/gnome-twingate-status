@@ -149,9 +149,6 @@ class TwingateIndicator extends Button {
     private _resources: Twingate.Resource[] = [];
     private _user: Twingate.User | null = null;
     private _notificationSource: MessageTray.Source | null = null;
-    // Resource whose auth flow is running; every retried connection repeats
-    // auth-required, which must not restart the flow or reopen the page.
-    private _pendingAuthResource: string | null = null;
     // Set while an auth flow we started is running, so the resulting reauth URL
     // opens even if the same URL was opened before.
     private _userRequestedAuth = false;
@@ -238,7 +235,6 @@ class TwingateIndicator extends Button {
                 },
                 onDisconnected: () => {
                     // A restarted daemon has no auth flow left to finish.
-                    this._pendingAuthResource = null;
                     this._userRequestedAuth = false;
                     this._updateResources([], null);
                     if (this._systemdService.isActive) this._setState('connecting');
@@ -498,10 +494,9 @@ class TwingateIndicator extends Button {
     private _handleAuthRequired(msg: Twingate.AuthRequiredMessage): void {
         // The resource list carries the auth state, refresh it.
         this._socketClient.sendCommand({ cmd: 'resources' });
-        if (this._pendingAuthResource === msg.resource_id) return;
         // Answering right away makes the daemon send reauth with the URL, which
         // then opens like a menu-triggered auth.
-        if (this._requestAuth(msg.name)) this._pendingAuthResource = msg.resource_id;
+        this._requestAuth(msg.name);
     }
 
     private _handleLogin(msg: Twingate.LoginMessage): void {
@@ -519,7 +514,6 @@ class TwingateIndicator extends Button {
 
     private _handleAuthEnd(msg: Twingate.AuthEndMessage): void {
         this._userRequestedAuth = false;
-        this._pendingAuthResource = null;
         if (msg.state) {
             this._logger.info('Authentication completed');
         } else {
